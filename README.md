@@ -285,6 +285,19 @@ if ($is_active) {
 } else {
     echo '<button disabled title="This user hasn\'t activated their secure chat yet">Chat Unavailable</button>';
 }
+```
+
+### 2. Deep-Linking (Starting Chats)
+To initiate or open a chat with a specific user from anywhere on your website, simply pass their user ID as a `chat_with` GET parameter:
+```text
+[https://yourwebsite.com/e2ee-messenger/messenger.php?chat_with=12927](https://yourwebsite.com/e2ee-messenger/messenger.php?chat_with=12927)
+```
+
+### 3. Browser Cache & New Device Behavior
+Educate your users that clearing their browser's `localStorage` or logging in from a completely different device/browser will:
+1. Permanently delete their current private key from that device.
+2. Automatically generate a *new* keypair upon their next chat visit (updating the public key on the server).
+3. **Render all previous chat history unreadable** (old messages will show a `⚠️ [Message cannot be decrypted]` warning). However, all new messages sent after this point will work perfectly.
 
 ---
 
