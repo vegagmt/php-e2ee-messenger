@@ -6,7 +6,8 @@ const MessengerApp = {
     currentPeerPubKey: null,
     lastMessageId: 0,
     pollingInterval: null,
-    myUserId: null,     
+    myUserId: null,   
+    isFetching: false,
     ui: {},
 
  
@@ -97,27 +98,33 @@ const MessengerApp = {
     },
 
   
-    async fetchAndRenderMessages() {
+async fetchAndRenderMessages() {
         if (!this.currentPeerId || !this.currentPeerPubKey) return;
-
-        const messages = await MessengerAPI.getMessages(this.currentPeerId, this.lastMessageId);
         
-        let hasNewMessages = false;
+        if (this.isFetching) return; 
+        
+        this.isFetching = true; 
 
-        messages.forEach(msg => {
-            
-            if (msg.id > this.lastMessageId) {
+        try {
+            const messages = await MessengerAPI.getMessages(this.currentPeerId, this.lastMessageId);
+            let hasNewMessages = false;
+
+            messages.forEach(msg => {
+                
+                if (msg.id <= this.lastMessageId) return;
+
                 this.lastMessageId = msg.id;
                 hasNewMessages = true;
-            }
- 
-            const plainText = E2EECrypto.decryptMessage(msg.ciphertext, this.currentPeerPubKey);
-            this.appendMessageToUI(plainText, msg.sender_id === this.myUserId, msg.created_at);
-        });
 
- 
-        if (hasNewMessages) {
-            this.scrollToBottom();
+                const plainText = E2EECrypto.decryptMessage(msg.ciphertext, this.currentPeerPubKey);
+                this.appendMessageToUI(plainText, msg.sender_id === this.myUserId, msg.created_at);
+            });
+
+            if (hasNewMessages) {
+                this.scrollToBottom();
+            }
+        } finally {
+            this.isFetching = false; 
         }
     },
 
