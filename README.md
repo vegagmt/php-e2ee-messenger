@@ -1,4 +1,4 @@
-# php-e2ee-messenger
+# php-e2ee-messenger v0.1
 
 Simple End-to-End Encrypted (E2EE) private messaging module for PHP websites.
 
