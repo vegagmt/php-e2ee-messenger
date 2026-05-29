@@ -262,6 +262,32 @@ Recommended:
 
 ---
 
+# Integration Guide & UX Workflow (Must Read)
+
+To avoid integration confusion, it is crucial to understand the core UX workflow of this module. This messenger behaves similarly to **Telegram's Secret Chats** (it is strictly device-bound).
+
+### 1. The First-Time Activation Rule (Explicit Opt-In)
+Because this is a zero-knowledge E2EE system, **User A cannot send a message to User B until User B has visited the messenger page at least once.**
+* When a user opens `messenger.php` for the first time, their browser automatically generates their X25519 keys and uploads the public key to your database.
+* If User A tries to open a chat with User B before User B has generated their keys, the API will return a `404 Key Not Found` error.
+
+**Recommended integration on your main site:**
+On your user profile pages, check if the target user has an active public key before displaying the chat link:
+
+```php
+// Inside your profile.php (or member card)
+$stmt = $pdo->prepare("SELECT 1 FROM e2ee_user_keys WHERE user_id = ?");
+$stmt->execute([$profile_user_id]);
+$is_active = $stmt->fetchColumn();
+
+if ($is_active) {
+    echo '<a href="/messenger.php?chat_with=' . $profile_user_id . '" class="btn">Send Secure Message</a>';
+} else {
+    echo '<button disabled title="This user hasn\'t activated their secure chat yet">Chat Unavailable</button>';
+}
+
+---
+
 # License
 
 MIT License
