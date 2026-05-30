@@ -9,11 +9,11 @@ if (!isset($_SESSION['user_id'])) {
     die("Please log in to the site to access secure messages..");
 }
 
-define('SITE_SECRET_SALT', 'random_string_of_64_characters_that_never_changes');
+ 
 
 $my_user_id = (int)$_SESSION['user_id'];
 
-$app_secret = hash('sha256', $my_user_id . SITE_SECRET_SALT);
+ 
 
 header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none';");
 header("X-Content-Type-Options: nosniff");
@@ -107,7 +107,7 @@ header("Referrer-Policy: strict-origin-when-cross-origin");
 <script src="js/messenger.js"></script>
 
 <script>
-    window.APP_SECRET = "<?= $app_secret ?>";
+  
     const MY_USER_ID  = <?= $my_user_id ?>;
 
     document.addEventListener('DOMContentLoaded', async () => {
