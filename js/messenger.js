@@ -204,12 +204,24 @@ const MessengerApp = {
                 const isMine = msg.sender_id === this.myUserId;
 
  
-                const plainText = E2EECrypto.decryptMessage(
-                    msg.ciphertext,
-                    this.currentPeerPubKey
-                );
+                let plainText;
+                let isError = false;
 
-                const isError = plainText.includes('[The message cannot be decrypted]');
+                try {
+                    plainText = E2EECrypto.decryptMessage(
+                        msg.ciphertext,
+                        this.currentPeerPubKey
+                    );
+                    
+                    if (plainText.includes('[The message cannot be decrypted]')) {
+                        isError = true;
+                    }
+                } catch (err) {
+                    console.warn(`[Crypto] Decryption error (msg.id: ${msg.id}). The key may have been changed.`);
+                    plainText = '[The message cannot be decrypted]';
+                    isError = true;
+                }
+
                 this._appendMessage(plainText, isMine, msg.created_at, isError);
             }
 
@@ -247,9 +259,7 @@ const MessengerApp = {
 
             this.ui.messageInput.value  = '';
             this.ui.messageInput.style.height = '';  
-            this.ui.sendBtn.disabled    = true;       
-
-  з
+            this.ui.sendBtn.disabled    = true;    
             await this.fetchAndRenderMessages(true);
             this.loadContacts();
 
